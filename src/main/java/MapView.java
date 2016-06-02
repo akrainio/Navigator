@@ -45,11 +45,20 @@ public class MapView extends Component {
         addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                zoomLevel -= (e.getWheelRotation()) * .1;
-                if (zoomLevel < .5) zoomLevel = .5;
-                if (zoomLevel > 1.5) zoomLevel = 1.5;
+                double zoomChange = e.getWheelRotation() * .1;
+                zoomLevel -= (zoomChange);
+                if (zoomLevel < .5) {
+                    zoomLevel = .5;
+                    return;
+                }
+                if (zoomLevel > 3) {
+                    zoomLevel = 3;
+                    return;
+                }
 //                offset.x += (image.getWidth() - image.getWidth() * zoomLevel) / 2;
 //                offset.y += (image.getHeight() - image.getHeight() * zoomLevel) / 2;
+                offset.x += e.getX() * zoomChange;
+                offset.y += e.getY() * zoomChange;
                 repaint();
             }
         });
