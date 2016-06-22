@@ -7,13 +7,13 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.LayoutManager;
-import java.awt.TextArea;
 import java.awt.Toolkit;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.DoubleConsumer;
 
 public class main {
     public static void main(String args[]) throws IOException {
@@ -27,12 +27,13 @@ public class main {
         content.setLayout(new BorderLayout());
         Container textFields = new Container();
         textFields.setLayout(new FlowLayout());
-        textFields.add(new JLabel("Width: "));
-        textFields.add(new JTextField(10));
-        textFields.add(new JLabel("Height: "));
-        textFields.add(new JTextField(10));
+        MapView mv = new MapView(image);
+        textFields.add(new JLabel("Longitude: "));
+        textFields.add(numberField(mv::setLongitude));
+        textFields.add(new JLabel("Latitude: "));
+        textFields.add(numberField(mv::setLatitude));
         content.add("North", textFields);
-        content.add("Center", new MapView(image));
+        content.add("Center", mv);
         jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         jFrame.setVisible(true);
     }
@@ -41,4 +42,21 @@ public class main {
             return ImageIO.read(in);
         }
     }
+    private static JTextField numberField(DoubleConsumer onChange) {
+        JTextField field = new JTextField("0", 10);
+        field.addActionListener(e -> {
+            double value = Double.parseDouble(field.getText());
+            onChange.accept(value);
+        });
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                super.focusLost(e);
+                double value = Double.parseDouble(field.getText());
+                onChange.accept(value);
+            }
+        });
+        return field;
+    }
+
 }
